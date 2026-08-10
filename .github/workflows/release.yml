@@ -27,6 +27,17 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      # The build runs from main so the manifest commit has somewhere to land, which is only
+      # safe while the tag actually points at a commit main contains. Pushing a tag before
+      # pushing main would otherwise ship the previous code under the new version number.
+      - name: Verify the tag is on main
+        if: github.event_name == 'push'
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag ${GITHUB_REF_NAME} is not an ancestor of main. Push main first, then the tag."
+            exit 1
+          fi
+
       - name: Resolve the version
         id: version
         run: |
