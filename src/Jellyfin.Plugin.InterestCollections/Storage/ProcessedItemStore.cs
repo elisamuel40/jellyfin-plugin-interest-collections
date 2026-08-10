@@ -43,6 +43,13 @@ public sealed class ProcessedItemStore : IDisposable
         => _store.Read().Items.TryGetValue(Key(itemId), out var record) ? record : null;
 
     /// <summary>
+    /// Returns a snapshot of every record, for reporting.
+    /// </summary>
+    /// <returns>The records, keyed by item id.</returns>
+    public IReadOnlyDictionary<string, ProcessedItemRecord> Snapshot()
+        => new Dictionary<string, ProcessedItemRecord>(_store.Read().Items, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
     /// Determines whether an item still needs processing.
     /// </summary>
     /// <param name="itemId">The Jellyfin item id.</param>
