@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CC207311-72AB-4E28-954D-9BDBCD5DB49A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jellyfin.Plugin.InterestCollections", "src\Jellyfin.Plugin.InterestCollections\Jellyfin.Plugin.InterestCollections.csproj", "{9C224A85-FEFD-49EC-A2FA-964582FB9153}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E4251FE8-765D-4855-B6D9-C585E8845DA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jellyfin.Plugin.InterestCollections.Tests", "tests\Jellyfin.Plugin.InterestCollections.Tests\Jellyfin.Plugin.InterestCollections.Tests.csproj", "{875CD255-543C-4BE1-8823-AD554F2EFC63}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C224A85-FEFD-49EC-A2FA-964582FB9153}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C224A85-FEFD-49EC-A2FA-964582FB9153}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C224A85-FEFD-49EC-A2FA-964582FB9153}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C224A85-FEFD-49EC-A2FA-964582FB9153}.Release|Any CPU.Build.0 = Release|Any CPU
+		{875CD255-543C-4BE1-8823-AD554F2EFC63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{875CD255-543C-4BE1-8823-AD554F2EFC63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{875CD255-543C-4BE1-8823-AD554F2EFC63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{875CD255-543C-4BE1-8823-AD554F2EFC63}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9C224A85-FEFD-49EC-A2FA-964582FB9153} = {CC207311-72AB-4E28-954D-9BDBCD5DB49A}
+		{875CD255-543C-4BE1-8823-AD554F2EFC63} = {E4251FE8-765D-4855-B6D9-C585E8845DA2}
+	EndGlobalSection
+EndGlobal
