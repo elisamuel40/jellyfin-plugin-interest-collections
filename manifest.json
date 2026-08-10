@@ -8,6 +8,14 @@
         "category": "Metadata",
         "versions": [
             {
+                "version": "0.1.1.0",
+                "changelog": "See the release notes at https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.1",
+                "targetAbi": "10.11.0.0",
+                "sourceUrl": "https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/download/v0.1.1/interest-collections-0.1.1.zip",
+                "checksum": "a7154acf90d836220bc485ba69f4f7fd",
+                "timestamp": "2026-08-10T23:43:07Z"
+            },
+            {
                 "version": "0.1.0.0",
                 "changelog": "See the release notes at https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.0",
                 "targetAbi": "10.11.0.0",
