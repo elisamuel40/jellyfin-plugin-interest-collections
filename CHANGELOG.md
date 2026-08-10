@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-08-10
+
+### Fixed
+
+- Items that belong to no library folder are skipped. A real 10.11.11 server returned 400 Movie
+  rows for a 216-movie library — the extras were leftover database rows for media that had moved
+  or been removed. Processing them doubled the provider requests and would have filled every
+  collection with titles nobody can see.
+
 ## [0.1.1] — 2026-08-10
 
 ### Fixed
@@ -42,6 +51,7 @@ against more libraries than the author's.
 - **Configuration page** and an **Interest Manager** page listing every applied interest with
   title counts and per-interest enable/disable.
 
-[Unreleased]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.2
 [0.1.1]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.1
 [0.1.0]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.0

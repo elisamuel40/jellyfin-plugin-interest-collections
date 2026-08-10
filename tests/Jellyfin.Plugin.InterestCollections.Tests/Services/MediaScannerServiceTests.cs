@@ -34,6 +34,39 @@ public class MediaScannerServiceTests
         return movie;
     }
 
+    /// <summary>
+    /// Makes every supplied item look like it belongs to one library folder.
+    /// </summary>
+    private static void PlaceInALibrary(ILibraryManager libraryManager, params BaseItem[] items)
+    {
+        var library = new Folder { Id = Guid.NewGuid(), Name = "Movies" };
+
+        foreach (var item in items)
+        {
+            libraryManager.GetCollectionFolders(item).Returns([library]);
+        }
+    }
+
+    [Fact]
+    public void GetEligibleItems_SkipsItemsThatBelongToNoLibrary()
+    {
+        // A real 10.11.11 server returned 400 Movie rows for a 216-movie library: the rest were
+        // leftovers from media that had moved. Tagging them fills collections with titles nobody
+        // can see.
+        var live = NewMovie(Guid.NewGuid(), "Se7en");
+        var orphan = NewMovie(Guid.NewGuid(), "Moved away");
+
+        var libraryManager = Substitute.For<ILibraryManager>();
+        libraryManager.GetItemList(Arg.Any<InternalItemsQuery>()).Returns(new List<BaseItem> { live, orphan });
+        libraryManager.GetCollectionFolders(Arg.Any<BaseItem>()).Returns([]);
+        PlaceInALibrary(libraryManager, live);
+
+        var items = Build(libraryManager).GetEligibleItems();
+
+        Assert.Single(items);
+        Assert.Equal(live.Id, items[0].Id);
+    }
+
     [Fact]
     public void GetEligibleItems_DeduplicatesTitlesReturnedOncePerLibrary()
     {
@@ -46,6 +79,7 @@ public class MediaScannerServiceTests
 
         var libraryManager = Substitute.For<ILibraryManager>();
         libraryManager.GetItemList(Arg.Any<InternalItemsQuery>()).Returns(new List<BaseItem> { movie, other, movie });
+        PlaceInALibrary(libraryManager, movie, other);
 
         var items = Build(libraryManager).GetEligibleItems();
 

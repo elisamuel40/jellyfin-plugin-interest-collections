@@ -78,22 +78,32 @@ public sealed class MediaScannerService
 
         var allowedLibraries = ParseLibraryFilter(configuration);
 
-        // A title that sits in more than one library — or is reachable through more than one
-        // root folder — comes back from GetItemList once per path. Left alone that doubles the
-        // work and inflates every count, so the list is deduplicated by item id here.
         var seen = new HashSet<Guid>();
         var results = new List<BaseItem>(items.Count);
         var duplicates = 0;
+        var orphans = 0;
 
         foreach (var item in items)
         {
+            // The same item can be returned once per path it is reachable through.
             if (!seen.Add(item.Id))
             {
                 duplicates++;
                 continue;
             }
 
-            if (allowedLibraries.Count > 0 && !IsInAllowedLibrary(item, allowedLibraries))
+            // An item that belongs to no library folder is not part of anyone's library: it is a
+            // leftover database row from media that moved or was removed. On a real 10.11.11
+            // server these outnumbered the genuine movies almost two to one, so processing them
+            // meant doubling the work and filling collections with titles nobody can see.
+            var libraries = _libraryManager.GetCollectionFolders(item);
+            if (libraries.Count == 0)
+            {
+                orphans++;
+                continue;
+            }
+
+            if (allowedLibraries.Count > 0 && !IsInAllowedLibrary(libraries, allowedLibraries))
             {
                 continue;
             }
@@ -101,9 +111,12 @@ public sealed class MediaScannerService
             results.Add(item);
         }
 
-        if (duplicates > 0)
+        if (duplicates > 0 || orphans > 0)
         {
-            _logger.LogDebug("Ignored {Count} duplicate entries returned by the library query", duplicates);
+            _logger.LogDebug(
+                "Skipped {Duplicates} repeated entries and {Orphans} items that belong to no library",
+                duplicates,
+                orphans);
         }
 
         return results;
@@ -168,12 +181,12 @@ public sealed class MediaScannerService
     /// <summary>
     /// Determines whether an item sits under one of the allowed libraries.
     /// </summary>
-    /// <param name="item">The library item.</param>
+    /// <param name="libraries">The library folders the item belongs to.</param>
     /// <param name="allowedLibraries">The allowed library ids.</param>
     /// <returns><see langword="true"/> when the item is in scope.</returns>
-    private bool IsInAllowedLibrary(BaseItem item, HashSet<Guid> allowedLibraries)
+    private static bool IsInAllowedLibrary(List<Folder> libraries, HashSet<Guid> allowedLibraries)
     {
-        foreach (var folder in _libraryManager.GetCollectionFolders(item))
+        foreach (var folder in libraries)
         {
             if (allowedLibraries.Contains(folder.Id))
             {
