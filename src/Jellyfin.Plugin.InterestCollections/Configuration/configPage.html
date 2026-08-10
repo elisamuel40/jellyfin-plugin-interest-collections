@@ -1,2 +1,252 @@
 <!DOCTYPE html>
-<html><head><title>Interest Collections</title></head><body><div id="placeholder"></div></body></html>
+<html lang="en">
+<head>
+    <title>Interest Collections</title>
+</head>
+<body>
+<div id="InterestCollectionsConfigPage"
+     data-role="page"
+     class="page type-interior pluginConfigurationPage"
+     data-controller="__plugin/interestcollections.js">
+    <div data-role="content">
+        <div class="content-primary">
+            <form id="InterestCollectionsConfigForm">
+
+                <div class="verticalSection">
+                    <h2 class="sectionTitle">Interest Collections</h2>
+                    <p id="statusLine" class="fieldDescription">Loading…</p>
+                    <p class="fieldDescription">
+                        <a is="emby-linkbutton" class="button-link" id="openInterestManager" href="#">
+                            Open the Interest Manager
+                        </a>
+                    </p>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Provider</h3>
+
+                    <div class="selectContainer">
+                        <select is="emby-select" id="Provider" name="Provider" label="Interest provider">
+                            <option value="0">IMDb Interests (no API key)</option>
+                            <option value="1">TMDb Keywords (API key required)</option>
+                            <option value="2">Local rules (offline)</option>
+                        </select>
+                        <div class="fieldDescription" id="providerDescription"></div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <input is="emby-input" type="password" id="ApiKey" name="ApiKey" label="API key" autocomplete="off" />
+                        <div class="fieldDescription">Only TMDb needs one. It is never written to the log.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <input is="emby-input" type="text" id="ApiBaseUrl" name="ApiBaseUrl" label="API base URL (optional)" />
+                        <div class="fieldDescription">Leave empty to use the provider's default endpoint.</div>
+                    </div>
+
+                    <button is="emby-button" type="button" id="testConnection" class="raised block">
+                        <span>Test connection</span>
+                    </button>
+                    <p id="testResult" class="fieldDescription"></p>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Processing</h3>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="ProcessMovies" />
+                        <span>Process movies</span>
+                    </label>
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="ProcessSeries" />
+                        <span>Process TV series</span>
+                    </label>
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="ProcessEpisodes" />
+                        <span>Process individual episodes</span>
+                    </label>
+                    <div class="fieldDescription">
+                        Episodes are off by default: per-episode interests add a lot of metadata noise
+                        for very little browsing value.
+                    </div>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="ProcessOnLibraryEvents" />
+                        <span>Process new media automatically</span>
+                    </label>
+
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="EventDebounceSeconds" min="5" max="3600"
+                               label="Wait before processing new media (seconds)" />
+                        <div class="fieldDescription">
+                            Jellyfin announces new items before their provider ids are filled in, so the
+                            plugin waits for a quiet period first.
+                        </div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <textarea is="emby-textarea" id="IncludedLibraries" rows="3"
+                                  label="Limit to these library ids (one per line)"></textarea>
+                        <div class="fieldDescription">Leave empty to process every library.</div>
+                    </div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Tagging</h3>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="WriteTags" />
+                        <span>Write interests to Jellyfin tags</span>
+                    </label>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="LockTagsField" />
+                        <span>Lock the Tags field after writing</span>
+                    </label>
+                    <div class="fieldDescription">
+                        Stops a later metadata refresh from discarding the interests, at the cost of
+                        also blocking other sources from editing tags.
+                    </div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Collections</h3>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="ManageCollections" />
+                        <span>Create and maintain a collection per interest</span>
+                    </label>
+
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="MinimumTitlesPerCollection" min="1" max="1000"
+                               label="Minimum titles per collection" />
+                    </div>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="AddNewTitlesToCollections" />
+                        <span>Add newly qualifying titles to existing collections</span>
+                    </label>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="RemoveCollectionsBelowMinimum" />
+                        <span>Delete managed collections that fall below the minimum</span>
+                    </label>
+                    <div class="fieldDescription">
+                        Only ever touches collections this plugin created. Collections you made by hand
+                        are never modified or deleted.
+                    </div>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="AllowFranchiseCollections" />
+                        <span>Allow collections for franchise interests</span>
+                    </label>
+
+                    <div class="inputContainer">
+                        <input is="emby-input" type="text" id="CollectionNamePrefix" label="Collection name prefix (optional)" />
+                    </div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Filters</h3>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="ExcludeGenreLevelInterests" />
+                        <span>Exclude genre-level interests (Drama, Crime, Thriller…)</span>
+                    </label>
+                    <div class="fieldDescription">These duplicate Jellyfin's own genres.</div>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="RejectInterestMatchingTitle" />
+                        <span>Reject an interest named after the title itself</span>
+                    </label>
+
+                    <h4>Excluded categories</h4>
+                    <div id="categoryCheckboxes" class="fieldDescription">Loading categories…</div>
+
+                    <div class="inputContainer">
+                        <textarea is="emby-textarea" id="IgnoredInterests" rows="4"
+                                  label="Ignored interests (one per line)"></textarea>
+                    </div>
+
+                    <div class="inputContainer">
+                        <textarea is="emby-textarea" id="BlockedPatterns" rows="3"
+                                  label="Blocked patterns, regular expressions (one per line)"></textarea>
+                        <div class="fieldDescription">An invalid pattern is skipped with a warning in the log.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <textarea is="emby-textarea" id="InterestAliases" rows="4"
+                                  label="Aliases, one per line, as Alias = Canonical"></textarea>
+                        <div class="fieldDescription">For example: Drug Trafficking = Drug Crime</div>
+                    </div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Requests and cache</h3>
+
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="MaxConcurrentRequests" min="1" max="16"
+                               label="Maximum concurrent requests" />
+                    </div>
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="RequestDelayMilliseconds" min="0" max="10000"
+                               label="Minimum delay between requests (ms)" />
+                    </div>
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="RequestTimeoutSeconds" min="5" max="300"
+                               label="Request timeout (seconds)" />
+                    </div>
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="MaxRetries" min="0" max="10" label="Retries" />
+                    </div>
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="CacheExpirationDays" min="1" max="3650"
+                               label="Cache lifetime (days)" />
+                    </div>
+                    <div class="inputContainer">
+                        <input is="emby-input" type="number" id="NegativeCacheExpirationDays" min="1" max="3650"
+                               label="Cache lifetime for empty answers (days)" />
+                    </div>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">Dry run</h3>
+
+                    <label class="checkboxContainer">
+                        <input is="emby-checkbox" type="checkbox" id="DryRun" />
+                        <span>Dry run: compute every change but write nothing</span>
+                    </label>
+
+                    <button is="emby-button" type="button" id="runDryRun" class="raised block">
+                        <span>Run a dry run now</span>
+                    </button>
+                    <p class="fieldDescription">
+                        Save your settings first. A dry run over a large library can take a while.
+                    </p>
+                    <pre id="dryRunReport" class="fieldDescription" style="white-space: pre-wrap;"></pre>
+                </div>
+
+                <div class="verticalSection">
+                    <button is="emby-button" type="submit" class="raised button-submit block">
+                        <span>Save</span>
+                    </button>
+                </div>
+
+                <div class="verticalSection">
+                    <h3 class="sectionTitle">About the IMDb provider</h3>
+                    <p class="fieldDescription">
+                        IMDb's public endpoint states that public, commercial or otherwise non-private
+                        use of its data is not permitted, and that only limited non-commercial use is
+                        allowed. Using it to tag your own self-hosted library falls inside that limit;
+                        redistributing the results does not. Answers are cached for 30 days by default
+                        and requests are throttled. If you would rather avoid the question entirely,
+                        switch the provider to TMDb Keywords or to the offline local rules.
+                    </p>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

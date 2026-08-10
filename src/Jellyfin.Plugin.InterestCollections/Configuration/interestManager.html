@@ -1,2 +1,56 @@
 <!DOCTYPE html>
-<html><head><title>Interest Collections</title></head><body><div id="placeholder"></div></body></html>
+<html lang="en">
+<head>
+    <title>Interest Manager</title>
+</head>
+<body>
+<div id="InterestCollectionsManagerPage"
+     data-role="page"
+     class="page type-interior pluginConfigurationPage"
+     data-controller="__plugin/interestcollectionsmanager.js">
+    <div data-role="content">
+        <div class="content-primary">
+
+            <div class="verticalSection">
+                <h2 class="sectionTitle">Interest Manager</h2>
+                <p class="fieldDescription" id="managerSummary">Loading…</p>
+                <p class="fieldDescription">
+                    Counts come from what the plugin has already applied, so this page costs no API
+                    requests. Run the scan task first if it looks empty.
+                </p>
+                <p class="fieldDescription">
+                    <a is="emby-linkbutton" class="button-link" id="backToSettings" href="#">Back to settings</a>
+                </p>
+            </div>
+
+            <div class="verticalSection">
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="interestSearch" label="Filter interests" />
+                </div>
+
+                <table class="detailTable" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Interest</th>
+                            <th style="text-align: left;">Category</th>
+                            <th style="text-align: right;">Titles</th>
+                            <th style="text-align: left;">Status</th>
+                            <th style="text-align: left;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="interestRows">
+                        <tr><td colspan="5">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="verticalSection" id="titlesPanel" style="display: none;">
+                <h3 class="sectionTitle" id="titlesHeading"></h3>
+                <div id="titlesList" class="fieldDescription"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
