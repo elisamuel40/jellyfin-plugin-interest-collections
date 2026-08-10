@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-08-10
+
+### Fixed
+
+- The library query returns a title once per library it is reachable through, so a 227-title
+  library was processed as 417 items: every title was looked up twice and every reported count
+  was inflated. Items are now deduplicated by id. Found by running a dry run against a real
+  10.11.11 server.
+
 ## [0.1.0] — 2026-08-10
 
 First alpha. The full pipeline works end to end; treat it as experimental until it has run
@@ -33,5 +42,6 @@ against more libraries than the author's.
 - **Configuration page** and an **Interest Manager** page listing every applied interest with
   title counts and per-interest enable/disable.
 
-[Unreleased]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.1
 [0.1.0]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.0

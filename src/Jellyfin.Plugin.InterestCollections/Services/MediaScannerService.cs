@@ -77,21 +77,36 @@ public sealed class MediaScannerService
         });
 
         var allowedLibraries = ParseLibraryFilter(configuration);
-        if (allowedLibraries.Count == 0)
-        {
-            return items;
-        }
 
-        var filtered = new List<BaseItem>(items.Count);
+        // A title that sits in more than one library — or is reachable through more than one
+        // root folder — comes back from GetItemList once per path. Left alone that doubles the
+        // work and inflates every count, so the list is deduplicated by item id here.
+        var seen = new HashSet<Guid>();
+        var results = new List<BaseItem>(items.Count);
+        var duplicates = 0;
+
         foreach (var item in items)
         {
-            if (IsInAllowedLibrary(item, allowedLibraries))
+            if (!seen.Add(item.Id))
             {
-                filtered.Add(item);
+                duplicates++;
+                continue;
             }
+
+            if (allowedLibraries.Count > 0 && !IsInAllowedLibrary(item, allowedLibraries))
+            {
+                continue;
+            }
+
+            results.Add(item);
         }
 
-        return filtered;
+        if (duplicates > 0)
+        {
+            _logger.LogDebug("Ignored {Count} duplicate entries returned by the library query", duplicates);
+        }
+
+        return results;
     }
 
     /// <summary>
