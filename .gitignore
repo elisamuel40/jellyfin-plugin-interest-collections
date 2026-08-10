@@ -1,0 +1,43 @@
+## .NET
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.user
+*.suo
+*.userprefs
+project.lock.json
+project.fragment.lock.json
+
+## Test / coverage
+[Tt]est[Rr]esult*/
+coverage*.json
+coverage*.xml
+coverage*.info
+*.coverage
+*.trx
+
+## Packaging output
+dist/
+*.zip
+*.nupkg
+
+## IDE
+.vs/
+.idea/
+*.swp
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Local secrets — never commit API keys
+*.local.json
+.env
+secrets.json

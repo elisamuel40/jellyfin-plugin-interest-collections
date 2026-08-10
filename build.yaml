@@ -1,0 +1,19 @@
+---
+name: "Interest Collections"
+guid: "5f9a1c74-3d0e-4c1b-9f2a-7b6d8e0a4c31"
+version: "0.1.0.0"
+targetAbi: "10.11.0.0"
+framework: "net9.0"
+overview: "Tag movies and shows with IMDb-style semantic Interests and build collections from them"
+description: >
+  Interest Collections classifies your movies and TV shows using granular semantic
+  "Interests" (Psychological Thriller, Drug Crime, Dark Comedy, Serial Killer,
+  Dystopian Sci-Fi, ...) instead of only coarse genres. Interests are written to
+  Jellyfin Tags and can optionally be materialised as managed Collections, so a
+  single title can appear in many interest-based collections at once.
+category: "Metadata"
+owner: "elisamuel40"
+artifacts:
+  - "Jellyfin.Plugin.InterestCollections.dll"
+changelog: >
+  Initial alpha release.
