@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, without the leading v (e.g. 0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Resolve the version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          # Jellyfin requires a four-part assembly version.
+          echo "assembly=${VERSION}.0" >> "$GITHUB_OUTPUT"
+
+      - name: Test
+        run: dotnet test --configuration Release
+
+      - name: Package
+        run: ./scripts/package.sh "${{ steps.version.outputs.version }}"
+
+      - name: Update the plugin manifest
+        run: |
+          ./scripts/update-manifest.py \
+            --version "${{ steps.version.outputs.assembly }}" \
+            --checksum "$(cut -d' ' -f1 dist/checksum.md5)" \
+            --repo "${{ github.repository }}" \
+            --tag "v${{ steps.version.outputs.version }}"
+
+      - name: Commit the manifest
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add manifest.json
+          git diff --staged --quiet || git commit -m "Publish ${{ steps.version.outputs.version }} in the plugin manifest"
+          git push origin main
+
+      - name: Create the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          prerelease: ${{ contains(steps.version.outputs.version, '-') || startsWith(steps.version.outputs.version, '0.') }}
+          files: |
+            dist/interest-collections-${{ steps.version.outputs.version }}.zip
+            dist/checksum.md5
