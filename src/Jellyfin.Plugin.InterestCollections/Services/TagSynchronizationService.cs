@@ -137,7 +137,19 @@ public sealed class TagSynchronizationService
 
         var configuration = _configurationAccessor();
 
-        if (change.HasChanges)
+        // Ownership is recorded before the write, not after. UpdateToRepositoryAsync raises
+        // ItemUpdated while it runs, and the library-event handler decides whether to queue an
+        // item by reading exactly this record. Recording afterwards leaves a window in which the
+        // plugin's own write looks like an external change — which on a 227-title library queued
+        // 213 items for a pointless second pass.
+        _processedItems.MarkProcessed(item.Id, change.OwnedTags, fingerprint);
+
+        if (!change.HasChanges)
+        {
+            return;
+        }
+
+        try
         {
             item.Tags = [.. change.FinalTags];
 
@@ -155,8 +167,13 @@ public sealed class TagSynchronizationService
                 change.Added.Count,
                 change.Removed.Count);
         }
-
-        _processedItems.MarkProcessed(item.Id, change.OwnedTags, fingerprint);
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // The optimistic record above must not outlive a failed write, or the item would
+            // never be retried.
+            _processedItems.MarkFailed(item.Id);
+            _logger.LogWarning(ex, "Could not save tags for {Item}; it will be retried", change.ItemName);
+        }
     }
 
     /// <summary>

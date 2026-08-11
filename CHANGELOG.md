@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-08-10
+
+### Fixed
+
+- Writing tags queued the plugin's own changes for a second pass. Jellyfin raises ItemUpdated
+  while the write is still running, and the event handler's loop guard reads the per-item record
+  that was only written afterwards — so a 227-title run queued 213 items for a pointless repeat.
+  Ownership is now recorded before the write, and reverted if the write fails.
+
+### Known issues
+
+- Creating many collections at once can leave a few of them uncommitted: a run that created 39
+  collections in about a second ended with 33 present. The next run detects the gap and recreates
+  them, so running the scan or rebuild task twice resolves it.
+
 ## [0.1.2] — 2026-08-10
 
 ### Fixed
@@ -51,7 +66,8 @@ against more libraries than the author's.
 - **Configuration page** and an **Interest Manager** page listing every applied interest with
   title counts and per-interest enable/disable.
 
-[Unreleased]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.3
 [0.1.2]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.2
 [0.1.1]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.1
 [0.1.0]: https://github.com/elisamuel40/jellyfin-plugin-interest-collections/releases/tag/v0.1.0

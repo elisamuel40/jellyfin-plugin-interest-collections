@@ -185,6 +185,10 @@ scan task — it reapplies them.
 **Collections were not created.** They need the minimum title count (3 by default). The dry
 run report lists everything that fell below it.
 
+**A few collections are missing after the first run.** Creating dozens of collections in one
+burst occasionally leaves some uncommitted on the Jellyfin side. Run *Rebuild interest
+collections* once; it detects the gap and recreates them.
+
 Logs are tagged with the plugin name; set Jellyfin's log level to Debug for per-item detail.
 API keys are never written to the log.
 
