@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.4] — 2026-08-13
+
+### Fixed
+
+- Interests that duplicate one of the item's own Jellyfin genres are dropped when "Exclude
+  genre-level interests" is on. The exclusion only knew the taxonomy's 23 category heads, but
+  Jellyfin's genre vocabulary is wider — a war movie still got "War" and "History" tags because
+  IMDb files those under Action and Drama. Reported in issue #1.
+
 ## [0.1.3] — 2026-08-10
 
 ### Fixed

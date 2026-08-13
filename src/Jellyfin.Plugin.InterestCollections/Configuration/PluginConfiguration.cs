@@ -90,9 +90,10 @@ public class PluginConfiguration : BasePluginConfiguration
     public string ExcludedCategories { get; set; } = "Language";
 
     /// <summary>
-    /// Gets or sets a value indicating whether genre-level interests (Drama, Crime, Thriller and
-    /// the other names shared with their category) are dropped. On by default because Jellyfin
-    /// already exposes those as genres.
+    /// Gets or sets a value indicating whether interests that duplicate a genre are dropped:
+    /// the taxonomy's genre-level entries (Drama, Crime, Thriller and the other names shared
+    /// with their category) plus any interest matching one of the item's own Jellyfin genres.
+    /// On by default because Jellyfin already exposes those as genres.
     /// </summary>
     public bool ExcludeGenreLevelInterests { get; set; } = true;
 

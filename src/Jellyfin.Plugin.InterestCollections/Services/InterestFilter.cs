@@ -64,6 +64,7 @@ public sealed class InterestFilter
         var configuration = _configurationAccessor();
         var rules = FilterRules.Build(configuration, _logger);
         var titleKey = InterestNormalizer.MatchKey(media.Name);
+        var genreKeys = BuildGenreKeys(media, configuration);
 
         var accepted = new List<InterestRef>(interests.Count);
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -72,7 +73,7 @@ public sealed class InterestFilter
         {
             var candidate = ApplyAlias(interest, rules);
 
-            if (!IsAccepted(candidate, rules, titleKey, configuration))
+            if (!IsAccepted(candidate, rules, titleKey, genreKeys, configuration))
             {
                 continue;
             }
@@ -92,12 +93,15 @@ public sealed class InterestFilter
     /// <param name="interest">The candidate, after alias mapping.</param>
     /// <param name="rules">The compiled rules.</param>
     /// <param name="titleKey">The match key of the title's own name.</param>
+    /// <param name="genreKeys">The match keys of the item's own genres, or null when genre
+    /// duplicates are allowed.</param>
     /// <param name="configuration">The configuration in force.</param>
     /// <returns><see langword="true"/> when the interest should be applied.</returns>
     private static bool IsAccepted(
         InterestRef interest,
         FilterRules rules,
         string titleKey,
+        HashSet<string>? genreKeys,
         PluginConfiguration configuration)
     {
         var key = InterestNormalizer.MatchKey(interest.Name);
@@ -111,7 +115,10 @@ public sealed class InterestFilter
             return false;
         }
 
-        if (configuration.ExcludeGenreLevelInterests && interest.IsGenreLevel)
+        // The taxonomy's genre-level flag only covers IMDb's own category heads. Jellyfin's genre
+        // vocabulary is wider ("War", "History"), so the item's actual genres are checked too.
+        if (configuration.ExcludeGenreLevelInterests
+            && (interest.IsGenreLevel || (genreKeys is not null && genreKeys.Contains(key))))
         {
             return false;
         }
@@ -136,6 +143,32 @@ public sealed class InterestFilter
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Builds the match keys of the item's own genres when genre duplicates are excluded.
+    /// </summary>
+    /// <param name="media">The title the interests belong to.</param>
+    /// <param name="configuration">The configuration in force.</param>
+    /// <returns>The genre match keys, or null when the exclusion is off or there are none.</returns>
+    private static HashSet<string>? BuildGenreKeys(MediaIdentity media, PluginConfiguration configuration)
+    {
+        if (!configuration.ExcludeGenreLevelInterests || media.Genres.Count == 0)
+        {
+            return null;
+        }
+
+        var keys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var genre in media.Genres)
+        {
+            var key = InterestNormalizer.MatchKey(genre);
+            if (key.Length > 0)
+            {
+                keys.Add(key);
+            }
+        }
+
+        return keys.Count > 0 ? keys : null;
     }
 
     /// <summary>

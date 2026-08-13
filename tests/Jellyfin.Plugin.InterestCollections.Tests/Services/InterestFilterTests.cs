@@ -23,12 +23,13 @@ public class InterestFilterTests
         RejectInterestMatchingTitle = false,
     };
 
-    private static MediaIdentity Title(string name) => new()
+    private static MediaIdentity Title(string name, params string[] genres) => new()
     {
         ItemId = Guid.NewGuid(),
         Name = name,
         Kind = MediaKind.Series,
         ImdbId = "tt0903747",
+        Genres = genres,
     };
 
     private static IReadOnlyList<InterestRef> Interests(params string[] names)
@@ -74,6 +75,22 @@ public class InterestFilterTests
             Interests("Crime", "Drama", "Thriller", "Serial Killer"));
 
         Assert.Equal(["Serial Killer"], Names(result));
+    }
+
+    [Fact]
+    public void Apply_DropsInterestsThatDuplicateTheItemsOwnGenres()
+    {
+        // Jellyfin's genre vocabulary is wider than IMDb's category heads: "War" and "History"
+        // are genres on the item but sub-interests of Action and Drama in the taxonomy, so the
+        // static genre-level flag alone would let them through as duplicate tags.
+        var configuration = Permissive();
+        configuration.ExcludeGenreLevelInterests = true;
+
+        var result = Build(configuration).Apply(
+            Title("Saving Private Ryan", "War", "History"),
+            Interests("War", "History", "War Epic"));
+
+        Assert.Equal(["War Epic"], Names(result));
     }
 
     [Fact]
