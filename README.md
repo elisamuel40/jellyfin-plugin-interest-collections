@@ -217,6 +217,14 @@ dotnet test
 collections *from tags*. If you prefer their collection behaviour, turn this plugin's
 collection management off and let it act purely as the semantic tagging layer they consume.
 
+## AI assistance
+
+This plugin was built with substantial AI assistance — Anthropic's Claude, via
+Claude Code — for design, implementation, tests and documentation. Many commits
+carry a `Claude-Session` trailer linking to the session that produced them. All
+changes are reviewed and tested against a real Jellyfin server by the author,
+who takes responsibility for every release.
+
 ## License
 
 MIT — see [LICENSE](LICENSE). Not affiliated with IMDb, TMDb or the Jellyfin project.
